@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="499.99915mm"
+   height="499.99997mm"
+   viewBox="0 0 499.99915 499.99997"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <g
+     id="layer1"
+     transform="translate(-150.00042,-150)">
+    <path
+       id="path1"
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:4.3362;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0;paint-order:fill markers stroke"
+       d="M 642.43502,348.79604 A 247.78302,247.78302 0 0 1 451.66127,642.33815 247.78302,247.78302 0 0 1 157.76041,452.11755 247.78302,247.78302 0 0 1 347.42719,157.85898 247.78302,247.78302 0 0 1 642.04243,346.97126" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:406.4px;line-height:1.5;font-family:Poppins;-inkscape-font-specification:'Poppins Medium';text-align:start;writing-mode:lr-tb;direction:ltr;text-orientation:upright;text-anchor:start;fill:#f9f9f9;fill-opacity:1;stroke:#000000;stroke-width:3.49999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0;paint-order:fill markers stroke"
+       x="247.1936"
+       y="543.25598"
+       id="text3"><tspan
+         id="tspan3"
+         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:406.4px;font-family:Poppins;-inkscape-font-specification:'Poppins Medium';stroke-width:3.5"
+         x="247.1936"
+         y="543.25598">C</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:203.2px;line-height:1.5;font-family:Poppins;-inkscape-font-specification:'Poppins Bold';text-align:start;writing-mode:lr-tb;direction:ltr;text-orientation:upright;text-anchor:start;fill:#f9f9f9;fill-opacity:1;stroke:#000000;stroke-width:3.49999;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0;paint-order:fill markers stroke"
+       x="373.17761"
+       y="470.612"
+       id="text2"><tspan
+         id="tspan2"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:203.2px;font-family:Poppins;-inkscape-font-specification:'Poppins Bold';fill:#f9f9f9;stroke:#000000;stroke-width:3.5"
+         x="373.17761"
+         y="470.612">I</tspan></text>
+  </g>
+</svg>

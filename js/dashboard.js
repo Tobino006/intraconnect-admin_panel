@@ -18,6 +18,3 @@ if (error || (data.role !== "Company" && data.role !== "Department")) {
     await supabase.auth.signOut();
     window.location.href = "index.html";
 }
-
-console.log("User: ", user);
-console.log("Admin role: ", data?.role);

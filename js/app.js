@@ -1,7 +1,6 @@
 import { supabase } from "./config/supabase.js";
 
 const form = document.getElementById("login-form");
-const errorText = document.getElementById("error");
 
 form.addEventListener("submit", async (e) => {
     e.preventDefault();

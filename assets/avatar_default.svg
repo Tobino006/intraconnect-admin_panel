@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="99.303459mm"
+   height="99.582397mm"
+   viewBox="0 0 99.303459 99.582397"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.2 (ebf0e940, 2025-05-08)"
+   sodipodi:docname="avatar_default.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="1.1101095"
+     inkscape:cx="259.88427"
+     inkscape:cy="192.32337"
+     inkscape:window-width="1712"
+     inkscape:window-height="968"
+     inkscape:window-x="1920"
+     inkscape:window-y="40"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1">
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect6"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1"
+       radius="0"
+       unit="px"
+       method="auto"
+       mode="F"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-24.176037,-49.930611)">
+    <ellipse
+       style="display:inline;fill:#000000;stroke-width:3.96875;stroke-linecap:round;stroke-linejoin:round"
+       id="path3"
+       cx="73.827766"
+       cy="99.721809"
+       rx="49.65173"
+       ry="49.791199"
+       inkscape:label="circle" />
+    <ellipse
+       style="display:inline;fill:#ffffff;stroke-width:3.14259;stroke-linecap:round;stroke-linejoin:round"
+       id="path1"
+       cx="73.827766"
+       cy="80.777649"
+       rx="13.201754"
+       ry="14.878262" />
+    <path
+       id="path1-0"
+       style="display:inline;fill:#ffffff;stroke-width:5.94406;stroke-linecap:round;stroke-linejoin:round"
+       d="M 73.827975,102.37245 A 36.387736,28.141516 0 0 0 38.143452,125.00789 H 109.51208 A 36.387736,28.141516 0 0 0 73.827975,102.37245 Z" />
+  </g>
+</svg>

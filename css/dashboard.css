@@ -1,0 +1,90 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: poppins, sans-serif;
+    background-color: white;
+}
+
+@font-face {
+    font-family: poppins;
+    src: 
+        url('../fonts/Poppins-Regular.ttf') format('truetype'),
+        url('../fonts/Poppins-Italic.ttf') format('truetype'),
+        url('../fonts/Poppins-Bold.ttf') format('truetype');
+}
+
+header {
+    position: relative;
+    background-color: black;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+header h1 {
+    flex: 1;
+}
+
+button {
+    font-family: poppins, sans-serif;
+    font-weight: bold;
+    background-color: black;
+    color: white;
+    padding: 1em;
+    border-radius: 1em;
+    border: none;
+    transition: background-color 0.2s ease;  
+}
+
+button:hover {
+    background-color: #1c1c1c;
+}
+
+#logoutBtn {
+    margin-right: 2em;
+    background-color: white;
+    color: black;
+    width: 5%;
+    flex-shrink: 0;
+}
+
+#logoutBtn:hover {
+    background-color: #dadada;
+}
+
+main {
+    display: flex;
+    height: calc(100vh - 150px);
+}
+
+aside.sidebar {
+    width: 10em;
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2em;
+    background-color: black;
+    height: 100%;
+}
+
+.nav-btn {
+    width: 100%;
+    padding: 2em;
+    border: none;
+    border-radius: 1em;
+    background-color: white;
+    color: black;
+}
+
+.nav-btn.active {
+    background-color: #dadada;
+}
+
+.nav-btn:hover {
+    background-color: #dadada;
+}

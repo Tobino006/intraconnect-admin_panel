@@ -13,7 +13,7 @@ async function checkExistingSession() {
 
 // login handler
 async function handleLogin(event) {
-    event.preventDefault;
+    event.preventDefault();
 
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;

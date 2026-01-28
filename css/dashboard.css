@@ -24,8 +24,13 @@ header {
     flex-shrink: 0;
 }
 
+header img {
+    padding-left: 2em;
+}
+
 header h1 {
     flex: 1;
+    padding-left: 1em;
 }
 
 button {
@@ -47,7 +52,6 @@ button:hover {
     margin-right: 2em;
     background-color: white;
     color: black;
-    width: 5%;
     flex-shrink: 0;
 }
 

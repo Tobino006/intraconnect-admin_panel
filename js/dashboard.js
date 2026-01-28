@@ -1,20 +1,55 @@
-import { supabase } from "./config/supabase.js"
+import { supabase } from './config/supabase.js'
 
-const { data: { user } } = await supabase.auth.getUser();
+// entry point
+async function initDashboard() {
+    try {
+        const user = await checkAuth();
+        const role = await checkAdminRole(user);
 
-if (!user) {
-    window.location.href = "index.html";
+        logout();
+    } catch (error) {
+        console.error(error);
+    }
 }
 
-// check admin role
-const { data, error } = await supabase
-    .from("admin")
-    .select("role")
-    .eq("user_id", user.id)
-    .single();
+// auth guard
+async function checkAuth() {
+    const { data: { user } } = await supabase.auth.getUser();
 
-if (error || (data.role !== "Company" && data.role !== "Department")) {
-    alert("You do not have access!");
-    await supabase.auth.signOut();
-    window.location.href = "index.html";
+    if (!user) {
+        window.location.replace('index.html');
+        throw new Error('Neoverený používateľ.');
+    }
+
+    return user;
 }
+
+// admin role guard
+async function checkAdminRole(user) {
+    const { data, error } = await supabase
+        .from('admin')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+
+    if (error || (data.role !== 'Company' && data.role !== 'Department')) {
+        await supabase.auth.signOut();
+        window.location.replace('index.html');
+        throw new Error('Prístup zamietnutý.');
+    }
+
+    return data.role;
+}
+
+// logout button
+function logout() {
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    logoutBtn.addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        window.location.replace('index.html');
+    })
+}
+
+// init
+initDashboard();

@@ -1,23 +1,36 @@
-import { supabase } from "./config/supabase.js";
+import { supabase } from './config/supabase.js';
 
-const form = document.getElementById("login-form");
+const form = document.getElementById('login-form');
 
-form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+// if user is already logged in, don't show login page
+async function checkExistingSession() {
+    const { data: { user } } = await supabase.auth.getUser();
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    if (user) {
+        window.location.replace('dashboard.html');
+    }
+}
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+// login handler
+async function handleLogin(event) {
+    event.preventDefault;
+
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    const { error } = await supabase.auth.signInWithPassword({
         email,
         password
     });
 
     if (error) {
-        alert("Error signing in!")
+        alert('Nesprávne prihlasovacie údaje.');
         return;
     }
 
-    // successful login
-    window.location.href = "dashboard.html"
-});
+    window.location.replace('dashboard.html');
+}
+
+// init
+checkExistingSession();
+form.addEventListener('submit', handleLogin);

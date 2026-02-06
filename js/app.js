@@ -24,7 +24,7 @@ async function handleLogin(event) {
     });
 
     if (error) {
-        alert('Nesprávne prihlasovacie údaje.');
+        alert('Chyba pri prihlasovaní. Skontrolujte, či ste zadali správne údaje.');
         return;
     }
 

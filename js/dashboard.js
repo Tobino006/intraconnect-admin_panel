@@ -1,5 +1,36 @@
 import { supabase } from './config/supabase.js'
 
+// format timestampz from Supabase
+function formatDate(dateString) {
+    if (!dateString || dateString == '-')  {
+        return '-';
+    }
+
+    const date = new Date(dateString);
+
+    // check if date is valid
+    if (isNaN(date.getTime())) return '-';
+
+    // days
+    const daysOfWeek = ['nedeľa', 'pondelok', 'utorok', 'streda', 'štvrtok', 'piatok', 'sobota'];
+
+    // get day of the week
+    const dayName = daysOfWeek[date.getDay()];
+
+    // get day, month, year
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+
+    // get hours and minutes
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    // return formatted string
+    return `${dayName}, ${day}. ${month}. ${year} o ${hours}:${minutes}`;
+
+}
+
 // global variable to store companyId
 let currentCompanyId = null;
 
@@ -22,7 +53,8 @@ async function initDashboard() {
             displayUsers(users);
         }
 
-        UserButtonListener(role, user.id);
+        UserButtonListener();
+        NotificationButtonListener();
         Logout();
     } catch (error) {
         console.error(error);
@@ -81,12 +113,37 @@ class User {
     }
 };
 
+// notification class for data
+class Notification {
+    constructor(id, companyId, title, message, publishedAt, updatedAt, createdBy, isGlobal, departmentId = null) {
+        this.id = id;
+        this.companyId = companyId;
+        this.title = title;
+        this.message = message;
+        this.publishedAt = publishedAt;
+        this.updatedAt = updatedAt || '-';
+        this.createdBy = createdBy;
+        this.isGlobal = isGlobal;
+        this.departmentId = departmentId;
+    }
+};
+
+// event listener for user button
+function UserButtonListener() {
+    const userBtn = document.getElementById('btn-users');
+
+    userBtn.addEventListener('click', async () => {
+        const users = await loadCompanyUsers(currentCompanyId);
+        displayUsers(users);
+    });
+}
+
 // function for loading users in admin's firm
-async function loadCompanyUsers(companyId) {
+async function loadCompanyUsers(currentCompanyId) {
     const { data, error } = await supabase
         .from('user')
         .select('*')
-        .eq('company_id', companyId);
+        .eq('company_id', currentCompanyId);
 
     if (error) {
         console.log('Error loading users: ', error);
@@ -158,31 +215,12 @@ function displayUsers(users) {
     sidebar.appendChild(userList);
 }
 
-// event listener for user button
-function UserButtonListener(role, user_id) {
-    const userBtn = document.getElementById('btn-users');
-
-    userBtn.addEventListener('click', async () => {
-        // load company_id from admin table
-        const { data } = await supabase
-            .from('admin')
-            .select('company_id')
-            .eq('user_id', user_id)
-            .single();
-        
-        if (data) {
-            const users = await loadCompanyUsers(data.company_id);
-            displayUsers(users);
-        }
-    });
-}
-
 // show formular after clicking on a user
 function displayUserForm(user) {
     const formContainer = document.querySelector('.form-container');
     formContainer.innerHTML = `
     <h2>Upraviť používateľa</h2>
-    <form id="userform">
+    <form id="userForm">
         <div class="form-group">
             <label>Meno:</label>
             <input type="text" id="formName" value="${user.name}" placeholder="Meno">
@@ -191,11 +229,6 @@ function displayUserForm(user) {
         <div class="form-group">
                 <label>Pozícia:</label>
                 <input type="text" id="formPosition" value="${user.position}" placeholder="Pozícia">
-        </div>
-        
-        <div class="form-group">
-                <label>Telefón:</label>
-                <input type="text" id="formPhone" value="${user.phone}" placeholder="Telefón">
         </div>
         
         <div class="form-group">
@@ -240,6 +273,276 @@ async function handleSaveUser(userId) {
             const users = await loadCompanyUsers(currentCompanyId);
             displayUsers(users);
         }   
+    }
+}
+
+// event listener for notification's button
+function NotificationButtonListener() {
+    const notificationsBtn = document.getElementById('btn-notifications');
+
+    notificationsBtn.addEventListener('click', async () => {
+        const notifications = await loadCompanyNotifications(currentCompanyId);
+        displayNotifications(notifications);
+    });
+}
+
+async function loadCompanyNotifications(currentCompanyId) {
+    // load notifications with optional department relationship
+    const { data, error } = await supabase
+        .from('notification')
+        .select('*, notification_department(department_id)')
+        .eq('company_id', currentCompanyId)
+        .order('published_at', { ascending: false });;
+    
+    if (error) {
+        console.log('Chyba pri načítaní oznamov: ', error);
+        return [];
+    }
+
+    // convert to notification object
+    return data.map(notification => {
+        // extract department id if it exists (for non-global notifications)
+        let departmentId = null;
+        if (!notification.is_global && notification.notification_department && notification.notification_department.length > 0) {
+            departmentId = notification.notification_department[0].department_id;
+        }
+        return new Notification (
+            notification.id, 
+            notification.company_id, 
+            notification.title, 
+            notification.message, 
+            notification.published_at, 
+            notification.updated_at, 
+            notification.created_by,
+            notification.is_global,
+            departmentId
+        );
+    });
+}
+
+function displayNotifications(notifications) {
+    const formSection = document.querySelector('.form-section');
+    
+    // create sidebar if it doesn't exist
+    let sidebar = document.querySelector('.sidebar');
+    if (!sidebar) {
+        sidebar = document.createElement('div');
+        sidebar.className = 'sidebar';
+        formSection.appendChild(sidebar);
+    }
+    
+    // create form-container if it doesn't exist
+    let formContainer = document.querySelector('.form-container');
+    if (!formContainer) {
+        formContainer = document.createElement('div');
+        formContainer.className = 'form-container';
+        formSection.appendChild(formContainer);
+    }
+
+    // fill the sidebar
+    sidebar.innerHTML = '<h2>Oznamy</h2>';
+
+    const notificationList = document.createElement('ul');
+    notifications.forEach(notification => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <div class="notification-item">
+                <strong>${notification.title}</strong>
+                <span class="notification-id">ID: ${notification.id}</span>
+                <div class="notification-info">
+                    <span>Správa: ${notification.message}</span>
+                </div>
+            </div>
+        `;
+
+        // event listener for every user-item
+        li.querySelector('.notification-item').addEventListener('click', () => {
+            displayNotificationForm(notification);
+        });
+        notificationList.appendChild(li);
+    });
+
+    sidebar.appendChild(notificationList);
+}
+
+// show formular after clicking on a user
+function displayNotificationForm(notification) {
+    const formContainer = document.querySelector('.form-container');
+    formContainer.innerHTML = `
+    <h2>Upraviť oznam</h2>
+    <form id="notificationForm">
+        <div class="form-group">
+            <label>Nadpis:</label>
+            <input type="text" id="formTitle" value="${notification.title}" placeholder="Nadpis">
+        </div>
+
+        <div class="form-group">
+            <label>Správa:</label>
+            <textarea id="formMessage" rows="10"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Vytvorené:</label>
+            <input type="text" id="formPublished" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Naposledy upravené:</label>
+            <input type="text" id="formUpdated" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Typ oznamu:</label>
+            <div style="margin-top: 0.5em;">
+                <label for="formIsGlobalYes">Pre všetkých</label>
+                <input type="radio" name="isGlobal" id="formIsGlobalYes" value="true">
+            </div>
+            <div style="margin-top: 0.5em;">
+                <label for="formIsGlobalNo">Len pre oddelenie</label>
+                <input type="radio" name="isGlobal" id="formIsGlobalNo" value="false">
+            </div>
+        </div>
+
+        <div class="form-group" id="departmentGroup" style="display: none;">
+            <label>Oddelenie ID:</label>
+            <input type="text" id="formDepartment" placeholder="ID oddelenia">
+        </div>
+        
+        <button type="button" id="saveBtn" class="save-btn">Uložiť zmeny</button>
+    </form>
+    `;
+
+    document.getElementById('formMessage').value = notification.message;
+
+    // format the dates
+    document.getElementById('formPublished').value = formatDate(notification.publishedAt);
+    document.getElementById('formUpdated').value = formatDate(notification.updatedAt);
+
+    // if global is chosen false, show input field for department id
+    if (notification.isGlobal) {
+        document.getElementById('formIsGlobalYes').checked = true;
+        document.getElementById('departmentGroup').style.display = 'none';
+    } else {
+        document.getElementById('formIsGlobalNo').checked = true;
+        document.getElementById('departmentGroup').style.display = 'block';
+        document.getElementById('formDepartment').value = notification.departmentId || '';
+    }
+
+    // event listener for radio button changes
+    document.querySelectorAll('input[name="isGlobal"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const departmentGroup = document.getElementById('departmentGroup');
+            if (e.target.value === 'false') {
+                departmentGroup.style.display = 'block';
+            } else {
+                departmentGroup.style.display = 'none';
+            }
+        });
+    });
+
+    // event listener for the save button
+    document.getElementById('saveBtn').addEventListener('click', () => {
+        handleSaveNotification(notification.id);
+    });
+}
+
+// function for saving notification changes to database
+async function handleSaveNotification(notificationId) {
+    try {
+         // get form values
+        const title = document.getElementById('formTitle').value;
+        const message = document.getElementById('formMessage').value;
+        const isGlobal = document.getElementById('formIsGlobalYes').checked;  // true if "Áno" is selected
+        const departmentId =document.getElementById('formDepartment').value || null;
+
+        // validation
+        if (!title.trim()) {
+            alert('Nadpis nesmie byť prázdny!');
+            return;
+        }
+
+        if (!isGlobal && !departmentId) {
+            alert('Keď je oznam len pre oddelenie, musíš zadať ID oddelenia!');
+            return;
+        }
+
+        // 1. update notification table
+        const { error: updateError } = await supabase
+            .from('notification')
+            .update({
+                title: title,
+                message: message,
+                is_global: isGlobal,
+                updated_at: new Date().toISOString() // actual time in ISO format like in Supabase
+            })
+            .eq('id', notificationId);
+        
+        if (updateError) {
+            alert('Chyba pri úprave oznamu: ' + updateError.message);
+            return;
+        }
+
+        // 2. handle notification_department relationship changes
+        const { data: existingDept, error: fetchError } = await supabase
+            .from('notification_department')
+            .select('*')
+            .eq('notification_id', notificationId);
+            
+        if (fetchError) {
+            alert('Chyba pri načítaní údajov: ' + fetchError.message);
+            return;
+        }
+
+        // if notification is now global
+        if (isGlobal) {
+            // delete all department associations
+            if (existingDept && existingDept.length > 0) {
+                const { error: deleteError } = await supabase
+                    .from('notification_department')
+                    .delete()
+                    .eq('notification_id', notificationId);
+
+                if (deleteError) {
+                    alert('Chyba pri zmazaní oddelení: ' + deleteError.message);
+                    return;
+                }
+            }
+        } else {
+            // if notification is for department
+            if (existingDept && existingDept.length > 0) {
+                // update existing department association
+                const { error: updateDeptError } = await supabase
+                    .from('notification_department')
+                    .update({ department_id: departmentId })
+                    .eq('notification_id', notificationId);
+
+                if (updateDeptError) {
+                    alert('Chyba pri úprave oddelenia: ' + updateDeptError.message);
+                    return;
+                }
+            } else {
+                // insert new department association
+                const { error: insertError } = await supabase
+                    .from('notification_department')
+                    .insert([{ notification_id: notificationId, department_id: departmentId}]);
+
+                if (insertError) {
+                    alert('Chyba pri novom priradení oddelenia: ' + insertError.message);
+                    return;
+                }
+            }
+        }
+
+        // 3. success message and reload
+        alert('Zmeny boli úspešne uložené!');
+
+        if (currentCompanyId) {
+            const notifications = await loadCompanyNotifications(currentCompanyId);
+            displayNotifications(notifications);
+        }
+    } catch (error) {
+        console.error('Unexpected error:', error);
+        alert('Neočakávaná chyba: ' + error.message);
     }
 }
 

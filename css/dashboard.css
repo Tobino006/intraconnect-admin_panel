@@ -101,7 +101,7 @@ ul, li {
     padding: 0;
 }
 
-aside.sidebar ul {
+.sidebar ul {
     padding: 0;
     margin: 1em;
     display: flex;
@@ -171,7 +171,54 @@ aside.sidebar ul {
     font-weight: normal
 }
 
+
+
+.notification-item {
+    border: 3px solid black;
+    border-radius: 0.5em;
+    padding: 1em;
+    padding-right: 4.5em;
+    transition: background-color 0.2s ease;
+    position: relative;
+}
+
+.notification-item:hover {
+    background-color: #dadada;
+}
+
+.notification-item strong {
+    display: block;
+    font-size: 1.2em;
+    margin-bottom: 0.5em;
+}
+
+.notification-item .notification-id {
+    display: block;
+    font-size: 0.85em;
+    color: #666;
+    margin-bottom: 0.8em;
+    font-weight: normal;
+}
+
+.notification-item .notification-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+}
+
+.notification-item .notification-info span {
+    font-size: 0.9em;
+    color: #666;
+    font-weight: normal
+}
+
 #userForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+}
+
+#notificationForm {
     display: flex;
     flex-direction: column;
     gap: 1.5em;
@@ -181,6 +228,13 @@ aside.sidebar ul {
     display: flex;
     flex-direction: column;
     gap: 0.5em;
+}
+
+.form-group textarea {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    font-family: poppins, sans-serif;
 }
 
 .form-group label {
@@ -194,6 +248,19 @@ aside.sidebar ul {
     border-radius: 0.5em;
     font-family: poppins, sans-serif;
     font-size: 0.95em;
+}
+
+.form-group input[type="radio"] {
+    display: block;
+    margin: 0.5em 0;
+    width: auto;
+}
+
+/* Zruš bold font-weight pre labely radio buttonov */
+.form-group input[type="radio"] ~ label {
+    font-weight: normal;
+    display: inline;
+    margin-left: 0.3em;
 }
 
 .form-group input:focus {

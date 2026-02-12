@@ -1,7 +1,7 @@
 import { supabase } from './config/supabase.js'
 
 // format timestampz from Supabase
-function formatDate(dateString) {
+function FormatDate(dateString) {
     if (!dateString || dateString == '-')  {
         return '-';
     }
@@ -28,17 +28,16 @@ function formatDate(dateString) {
 
     // return formatted string
     return `${dayName}, ${day}. ${month}. ${year} o ${hours}:${minutes}`;
-
 }
 
 // global variable to store companyId
 let currentCompanyId = null;
 
 // entry point
-async function initDashboard() {
+async function InitDashboard() {
     try {
         const user = await checkAuth();
-        const role = await checkAdminRole(user);
+        checkAdminRole(user); // check role whether user has required authentication
 
         // Load users for admin's company
         const { data } = await supabase
@@ -50,11 +49,13 @@ async function initDashboard() {
         if (data) {
             currentCompanyId = data.company_id;
             const users = await loadCompanyUsers(data.company_id);
-            displayUsers(users);
+            displayCompanyUsers(users);
         }
 
-        UserButtonListener();
-        NotificationButtonListener();
+        CompanyUsersButtonListener();
+        CompanyNotificationsButtonListener();
+        //CompanyButtonListener();
+        CompanyDepartmentsButtonListener();
         Logout();
     } catch (error) {
         console.error(error);
@@ -128,13 +129,21 @@ class Notification {
     }
 };
 
+class Department {
+    constructor(id, companyId, name) {
+        this.id = id;
+        this.companyId = companyId;
+        this.name = name;
+    }
+};
+
 // event listener for user button
-function UserButtonListener() {
+function CompanyUsersButtonListener() {
     const userBtn = document.getElementById('btn-users');
 
     userBtn.addEventListener('click', async () => {
         const users = await loadCompanyUsers(currentCompanyId);
-        displayUsers(users);
+        displayCompanyUsers(users);
     });
 }
 
@@ -165,7 +174,7 @@ async function loadCompanyUsers(currentCompanyId) {
 }
 
 // function for displaying users
-function displayUsers(users) {
+function displayCompanyUsers(users) {
     const formSection = document.querySelector('.form-section');
     
     // create sidebar if it doesn't exist
@@ -185,7 +194,17 @@ function displayUsers(users) {
     }
     
     // fill the sidebar
-    sidebar.innerHTML = '<h2>Používatelia</h2>';
+    sidebar.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Používatelia</h2>
+            <button class="btn-add-user" id="btn-add-user" title="Pridať nového používateľa">+</button>
+        </div>
+    `;
+
+    // event listener for + button
+    document.getElementById('btn-add-user').addEventListener('click', () => {
+        displayAddUserForm();
+    });
 
     const userList = document.createElement('ul');
     users.forEach(user => {
@@ -194,6 +213,7 @@ function displayUsers(users) {
         const avatarSrc = (user.avatarUrl && user.avatarUrl !== '-') ? user.avatarUrl : 'assets/avatar_default.svg';
         li.innerHTML = `
             <div class="user-item">
+                <button class="btn-delete-user" data-user-id="${user.id}" title="Odstrániť používateľa">Odstrániť</button>
                 <img src="${avatarSrc}" alt="Avatar" class="user-avatar">
                 <strong>${user.name}</strong>
                 <span class="user-id">ID: ${user.id}</span>
@@ -210,9 +230,121 @@ function displayUsers(users) {
             displayUserForm(user);
         });
         userList.appendChild(li);
+
+        // event listener for delete button
+        li.querySelector('.btn-delete-user').addEventListener('click', (e) => {
+            e.stopPropagation();
+            handleDeleteUser(user.id, user.name);
+        })
     });
 
     sidebar.appendChild(userList);
+}
+
+function displayAddUserForm() {
+    const formContainer = document.querySelector('.form-container');
+    formContainer.innerHTML = `
+        <h2>Pridať nového používateľa</h2>
+        <form id="addUserForm">
+            <div class="form-group">
+                <label>Meno:</label>
+                <input type="text" id="newName" placeholder="Meno a priezvisko" required>
+            
+
+            
+                <label>Email:</label>
+                <input type="email" id="newEmail" placeholder="email@example.com" required>
+            
+
+            
+                <label>Pozícia:</label>
+                <input type="text" id="newPosition" placeholder="Pozícia vo firme (nepovinné)">
+            
+
+            
+                <label>Oddelenie ID:</label>
+                <input type="text" id="newDepartmentId" placeholder="ID oddelenia (nepovinné)">
+            
+
+            
+                <label>Dočasné heslo:</label>
+                <input type="password" id="newPassword" placeholder="Minimálne 8 znakov" required>
+            
+
+            <div class="form-group" style="flex-direction: row; gap: 1em; justify-content: center;">
+                <button type="button" id="saveNewUserBtn" class="save-btn">Vytvoriť používateľa</button>
+            </div>
+        </form>
+    `;
+
+    // save new user button
+    document.getElementById('saveNewUserBtn').addEventListener('click', () => {
+        handleCreateNewUser();
+    });
+}
+
+async function handleCreateNewUser() {
+    try {
+        const name = document.getElementById('newName').value;
+        const email = document.getElementById('newEmail').value;
+        const position = document.getElementById('newPosition').value || null;
+        const departmentId = document.getElementById('newDepartmentId').value;
+        const password = document.getElementById('newPassword').value;
+
+        // validation
+        if (!name.trim() || !email.trim() || !password.trim()) {
+            alert('Vyplňte všetky povinné polia!');
+            return;
+        }
+
+        // check whether department exists
+        if (!checkIfDepartmentExists(departmentId)) {
+            alert('Oddelenie s týmto ID neexistuje!');
+            return;
+        }
+
+        // create auth acc in Supabase
+        const { data: authData, error: authError} = await supabase.auth.signUp({
+            email: email,
+            password: password
+        });
+
+        if (authError) {
+            alert('Chyba pri vytváraní konta: ' + authError.message);
+            return;
+        }
+
+        const newUserId = authData.user?.id;
+        console.log(newUserId);
+
+        // insert new user to 'user' table
+        const { data: insertData, error: insertError } = await supabase
+            .from('user')
+            .insert([{
+                id: newUserId,
+                company_id: currentCompanyId,
+                name: name,
+                position: position,
+                phone: null,
+                department_id: departmentId,
+                avatar_url: null
+            }]);
+
+        if (insertError) {
+            console.error('Insert Error:', insertError);
+            alert('Chyba pri vložení do tabuľky: ' + insertError.message);
+            return;
+        }
+
+        alert(`Používateľ "${name}" bol úspešne vytvorený.\n\nEmail: ${email}\nHeslo: ${password}`);
+
+        // reload user list
+        const users = await loadCompanyUsers(currentCompanyId);
+        displayCompanyUsers(users);
+    } catch (error) {
+        console.error('Error creating user:', error);
+        alert('Neočakávan chyba: ' + error.message);
+    }
 }
 
 // show formular after clicking on a user
@@ -249,8 +381,7 @@ function displayUserForm(user) {
 // function for saving user changes to database
 async function handleSaveUser(userId) {
     const name = document.getElementById('formName').value;
-    const position = document.getElementById('formPosition').value;
-    const phone = document.getElementById('formPhone').value;
+    const position = document.getElementById('formPosition').value || null;
     const departmentId = document.getElementById('formDepartment').value;
 
     const { error } = await supabase
@@ -258,7 +389,6 @@ async function handleSaveUser(userId) {
         .update({
             name: name,
             position: position,
-            phone: phone,
             department_id: departmentId
         })
         .eq('id', userId);
@@ -271,18 +401,55 @@ async function handleSaveUser(userId) {
         // reload user list
         if (currentCompanyId) {
             const users = await loadCompanyUsers(currentCompanyId);
-            displayUsers(users);
+            displayCompanyUsers()(users);
         }   
     }
 }
 
+// function for safe user deletion
+async function handleDeleteUser(userId, userName) {
+    // confirmation dialog
+    const confirmed = confirm(`Naozaj si prajete odstrániť používateľa "${userName}"?\n\nTáto akcia je nemenná.`);
+
+    if (!confirmed) {
+        console.log('Akcia zrušená.');
+        return;
+    }
+
+    try {
+
+        // remove user
+        const { data, error } = await supabase.functions.invoke("delete-user", {
+            body: {
+                userId: userId,
+                companyId:currentCompanyId
+            }
+        });
+
+        if (error) {
+            alert(error.message);
+        }
+        
+        alert(`Používateľ "${userName}" bol úspešne odstránený.`);
+
+        // reload user list
+        if (currentCompanyId) {
+            const users = await loadCompanyUsers(currentCompanyId);
+            displayCompanyUsers(users);
+        }
+    } catch (error ) {
+        console.error('Error pri odstraňovaní užívateľa:', error);
+        alert('Chyba pri odstraňovaní používateľa!' + error.message);
+    }
+}
+
 // event listener for notification's button
-function NotificationButtonListener() {
+function CompanyNotificationsButtonListener() {
     const notificationsBtn = document.getElementById('btn-notifications');
 
     notificationsBtn.addEventListener('click', async () => {
         const notifications = await loadCompanyNotifications(currentCompanyId);
-        displayNotifications(notifications);
+        displayCompanyNotifications(notifications);
     });
 }
 
@@ -320,7 +487,7 @@ async function loadCompanyNotifications(currentCompanyId) {
     });
 }
 
-function displayNotifications(notifications) {
+function displayCompanyNotifications(notifications) {
     const formSection = document.querySelector('.form-section');
     
     // create sidebar if it doesn't exist
@@ -415,8 +582,8 @@ function displayNotificationForm(notification) {
     document.getElementById('formMessage').value = notification.message;
 
     // format the dates
-    document.getElementById('formPublished').value = formatDate(notification.publishedAt);
-    document.getElementById('formUpdated').value = formatDate(notification.updatedAt);
+    document.getElementById('formPublished').value = FormatDate(notification.publishedAt);
+    document.getElementById('formUpdated').value = FormatDate(notification.updatedAt);
 
     // if global is chosen false, show input field for department id
     if (notification.isGlobal) {
@@ -446,6 +613,22 @@ function displayNotificationForm(notification) {
     });
 }
 
+// validation for saving notification to check if department exists
+async function checkIfDepartmentExists(departmentId) {
+    const { data, error } = await supabase
+        .from('department')
+        .select('id')
+        .eq('id', departmentId)
+        .eq('company_id', currentCompanyId)
+        .single();
+
+    if (error || !data) {
+        return false;
+    }
+
+    return true; // department exists and belongs to admin's company
+}
+
 // function for saving notification changes to database
 async function handleSaveNotification(notificationId) {
     try {
@@ -464,6 +647,15 @@ async function handleSaveNotification(notificationId) {
         if (!isGlobal && !departmentId) {
             alert('Keď je oznam len pre oddelenie, musíš zadať ID oddelenia!');
             return;
+        }
+
+        // check if department exists and belongs to admin's company
+        if (!isGlobal) {
+            const departmentExists = await checkIfDepartmentExists(departmentId);
+            if (!departmentExists) {
+                alert('Toto oddelenie neexistuje vo Vašej firme!');
+                return;
+            }
         }
 
         // 1. update notification table
@@ -538,7 +730,125 @@ async function handleSaveNotification(notificationId) {
 
         if (currentCompanyId) {
             const notifications = await loadCompanyNotifications(currentCompanyId);
-            displayNotifications(notifications);
+            displayCompanyNotifications(notifications);
+        }
+    } catch (error) {
+        console.error('Unexpected error:', error);
+        alert('Neočakávaná chyba: ' + error.message);
+    }
+}
+
+// event listener for department's button
+function CompanyDepartmentsButtonListener() {
+    const departmentsBtn = document.getElementById('btn-departments');
+
+    departmentsBtn.addEventListener('click', async () => {
+        const departments = await loadCompanyDepartments(currentCompanyId);
+        displayCompanyDepartments(departments);
+    });
+}
+
+async function loadCompanyDepartments(currentCompanyId) {
+    const { data, error } = await supabase
+        .from('department')
+        .select('*')
+        .eq('company_id', currentCompanyId);
+    
+    if (error) {
+        console.log('Chyba pri načítaní oddelení: ', error);
+        return [];
+    }
+
+    // convert to department object
+    return data.map(department => {
+        return new Department (
+            department.id,
+            department.company_id,
+            department.name
+        );
+    });
+}
+
+function displayCompanyDepartments(departments) {
+    const formSection = document.querySelector('.form-section');
+    
+    // create sidebar if it doesn't exist
+    let sidebar = document.querySelector('.sidebar');
+    if (!sidebar) {
+        sidebar = document.createElement('div');
+        sidebar.className = 'sidebar';
+        formSection.appendChild(sidebar);
+    }
+    
+    // create form-container if it doesn't exist
+    let formContainer = document.querySelector('.form-container');
+    if (!formContainer) {
+        formContainer = document.createElement('div');
+        formContainer.className = 'form-container';
+        formSection.appendChild(formContainer);
+    }
+
+    // fill the sidebar
+    sidebar.innerHTML = '<h2>Oddelenia</h2>';
+
+    const departmentLists = document.createElement('ul');
+    departments.forEach(department => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <div class="department-item">
+                <strong>${department.name}</strong>
+                <span class="department-id">ID: ${department.id}</span>
+            </div>
+        `;
+
+        // event listener for every department-item
+        li.querySelector('.department-item').addEventListener('click', () => {
+            displayDepartmentForm(department);
+        });
+        departmentLists.appendChild(li);
+    });
+
+    sidebar.appendChild(departmentLists);
+}
+
+function displayDepartmentForm(department) {
+    const formContainer = document.querySelector('.form-container');
+    formContainer.innerHTML = `
+    <h2>Upraviť oddelenie</h2>
+    <form id="departmentForm">
+        <div class="form-group">
+            <label>Názov:</label>
+            <input type="text" id="formName" value="${department.name}" placeholder="Názov">
+            <button type="button" id="saveBtn" class="save-btn">Uložiť zmeny</button>
+        </div>
+    </form>
+    `;
+
+    // event listener for the save button
+    document.getElementById('saveBtn').addEventListener('click', () => {
+        handleSaveDepartment(department.id);
+    });
+}
+
+async function handleSaveDepartment(departmentId) {
+    try {
+         // get form values
+        const name = document.getElementById('formName').value;
+
+        // update department
+        const { error: updateError } = await supabase
+            .from('department')
+            .update({
+                name: name
+            })
+            .eq('id', departmentId);
+
+        // success message and reload
+        alert('Zmeny boli úspešne uložené!');
+
+        if (currentCompanyId) {
+            const departments = await loadCompanyDepartments(currentCompanyId);
+            displayCompanyDepartments(departments);
         }
     } catch (error) {
         console.error('Unexpected error:', error);
@@ -547,4 +857,4 @@ async function handleSaveNotification(notificationId) {
 }
 
 // init
-initDashboard();
+InitDashboard();

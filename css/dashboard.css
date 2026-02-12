@@ -58,7 +58,7 @@ button:hover {
 
 main {
     display: flex;
-    height: calc(100vh - 150px);
+    height: calc(100vh - 100px);
     gap: 0;
     padding-top: 6em;
 }
@@ -76,7 +76,7 @@ main {
     display: flex;
     flex-direction: column;
     height: 100%;
-    overflow-y: auto;
+    overflow-y: hidden;
     border-right: 2px solid #ddd;
 }
 
@@ -122,22 +122,8 @@ ul, li {
     background-color: #dadada;
 }
 
-.user-item {
-    border: 3px solid black;
-    border-radius: 0.5em;
-    padding: 1em;
-    padding-right: 4.5em;
-    transition: background-color 0.2s ease;
-    position: relative;
-}
-
-.user-item:hover {
-    background-color: #dadada;
-}
-
 .user-avatar {
     position: absolute;
-    top: 1em;
     right: 1em;
     width: 3.5em;
     height: 3.5em;
@@ -145,35 +131,9 @@ ul, li {
     object-fit: cover;
 }
 
-.user-item strong {
-    display: block;
-    font-size: 1.2em;
-    margin-bottom: 0.5em;
-}
-
-.user-item .user-id {
-    display: block;
-    font-size: 0.85em;
-    color: #666;
-    margin-bottom: 0.8em;
-    font-weight: normal;
-}
-
-.user-item .user-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3em;
-}
-
-.user-item .user-info span {
-    font-size: 0.9em;
-    color: #666;
-    font-weight: normal
-}
-
-
-
-.notification-item {
+.user-item,
+.notification-item,
+.department-item {
     border: 3px solid black;
     border-radius: 0.5em;
     padding: 1em;
@@ -182,17 +142,23 @@ ul, li {
     position: relative;
 }
 
-.notification-item:hover {
+.user-item:hover,
+.notification-item:hover,
+.department-item:hover {
     background-color: #dadada;
 }
 
-.notification-item strong {
+.user-item strong,
+.notification-item strong,
+.department-item strong {
     display: block;
     font-size: 1.2em;
     margin-bottom: 0.5em;
 }
 
-.notification-item .notification-id {
+.user-item .user-id,
+.notification-item .notification-id,
+.department-item .department-id {
     display: block;
     font-size: 0.85em;
     color: #666;
@@ -200,25 +166,22 @@ ul, li {
     font-weight: normal;
 }
 
-.notification-item .notification-info {
+.user-item .user-info,
+.notification-item .notification-info,
+.department-item .department-info {
     display: flex;
     flex-direction: column;
     gap: 0.3em;
 }
 
-.notification-item .notification-info span {
+.user-item .user-info span,
+.notification-item .notification-info span,
+.department-item .department-info span {
     font-size: 0.9em;
     color: #666;
-    font-weight: normal
+    font-weight: normal;
 }
-
-#userForm {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5em;
-}
-
-#notificationForm {
+#userForm, #notificationForm {
     display: flex;
     flex-direction: column;
     gap: 1.5em;
@@ -256,8 +219,7 @@ ul, li {
     width: auto;
 }
 
-/* Zruš bold font-weight pre labely radio buttonov */
-.form-group input[type="radio"] ~ label {
+.form-group input[type="radio"] + label {
     font-weight: normal;
     display: inline;
     margin-left: 0.3em;
@@ -280,4 +242,51 @@ ul, li {
 
 .save-btn:hover {
     background-color: #1c1c1c;
+}
+
+.btn-delete-user {
+    position: absolute;
+    bottom: 1em;
+    right: 1.25em;
+    height: 2em;
+    background-color: #ff6b6b;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    padding: 1em;
+    z-index: 10;
+    font-family: poppins, sans-serif;
+    font-weight: bold;
+    color: white;
+}
+
+.btn-delete-user:hover {
+    background-color: #ff4444;
+}
+
+.btn-delete-user:active {
+    transform: scale(0.95);
+}
+
+.btn-add-user {
+    width: 2.5em;
+    height: 2.5em;
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.5em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    padding: 0;
+}
+
+.btn-add-user:hover {
+    background-color: #45a049;
 }

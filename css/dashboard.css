@@ -23,6 +23,7 @@ header {
     justify-content: space-between;
     flex-shrink: 0;
     width: 100%;
+    z-index: 1000;
 }
 
 header h1 {
@@ -75,9 +76,9 @@ main {
     padding: 2em;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    overflow-y: hidden;
+    overflow-y: auto;
     border-right: 2px solid #ddd;
+    height: 100%;
 }
 
 .sidebar h2 {

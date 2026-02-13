@@ -248,22 +248,22 @@ function displayAddUserForm() {
         <form id="addUserForm">
             <div class="form-group">
                 <label>Meno:</label>
-                <input type="text" id="newName" placeholder="Meno a priezvisko" required>
+                <input type="text" id="newName" placeholder="Meno a priezvisko" autocomplete="off" required>
             
 
             
                 <label>Email:</label>
-                <input type="email" id="newEmail" placeholder="email@example.com" required>
+                <input type="email" id="newEmail" placeholder="email@example.com" autocomplete="off" required>
             
 
             
                 <label>Pozícia:</label>
-                <input type="text" id="newPosition" placeholder="Pozícia vo firme (nepovinné)">
+                <input type="text" id="newPosition" placeholder="Pozícia vo firme (nepovinné)" autocomplete="off">
             
 
             
                 <label>Oddelenie ID:</label>
-                <input type="text" id="newDepartmentId" placeholder="ID oddelenia (nepovinné)">
+                <input type="text" id="newDepartmentId" placeholder="ID oddelenia (nepovinné)" autocomplete="off">
             
 
             
@@ -517,7 +517,7 @@ function displayCompanyNotifications(notifications) {
                 <strong>${notification.title}</strong>
                 <span class="notification-id">ID: ${notification.id}</span>
                 <div class="notification-info">
-                    <span>Správa: ${notification.message}</span>
+                    <span>Správa:<br/> ${notification.message}</span>
                 </div>
             </div>
         `;
@@ -544,7 +544,7 @@ function displayNotificationForm(notification) {
         </div>
 
         <div class="form-group">
-            <label>Správa:</label>
+            <label>Správa:</label> 
             <textarea id="formMessage" rows="10"></textarea>
         </div>
 

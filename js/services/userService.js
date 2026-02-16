@@ -52,7 +52,7 @@ export async function createNewUser(userData, companyId) {
             name: name,
             position: position || null,
             phone: null,
-            department_id: departmentId,
+            department_id: departmentId || null,
             avatar_url: null
         }]);
 

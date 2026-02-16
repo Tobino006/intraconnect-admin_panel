@@ -140,7 +140,33 @@ function displayNotificationForm(notification) {
     });
 
     // event listener for the save button
-    document.getElementById('saveBtn').addEventListener('click', () => {
-        handleSaveNotification(notification.id);
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+        try {
+            const title = document.getElementById('formTitle').value;
+            const message = document.getElementById('formMessage').value;
+            const isGlobal = document.querySelector('input[name="isGlobal"]:checked').value === "true";
+            const departmentId = document.getElementById('formDepartment').value;
+
+            await updateNotification (
+                notification.id,
+                {
+                    title,
+                    message,
+                    isGlobal,
+                    departmentId
+                },
+                currentCompanyId
+            );
+
+            alert("Oznam bol úspešne upravený.");
+
+            // reload notifications
+            const notifications = await loadCompanyNotifications(currentCompanyId);
+            displayCompanyNotifications(notifications);
+
+        } catch (error) {
+            console.error("Error updating notification:", error);
+            alert(error.message);
+        }
     });
 }

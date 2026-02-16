@@ -1,5 +1,5 @@
 import { supabase } from './../config/supabase.js';
-import { Department } from '../models/Department.js';
+import { Department } from '../models/department.js';
 
 // Load all departments for a company
 export async function loadCompanyDepartments(companyId) {

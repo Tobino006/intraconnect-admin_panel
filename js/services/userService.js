@@ -1,5 +1,5 @@
 import { supabase } from './../config/supabase.js';
-import { User } from '../models/User.js';
+import { User } from '../models/user.js';
 
 // Load all users for a company
 export async function loadCompanyUsers(companyId) {

@@ -1,5 +1,5 @@
 import { supabase } from './../config/supabase.js';
-import { Notification } from '../models/Notification.js';
+import { Notification } from '../models/notification.js';
 
 // Load all notifications for a company
 export async function loadCompanyNotifications(companyId) {

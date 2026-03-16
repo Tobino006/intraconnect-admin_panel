@@ -54,19 +54,26 @@ export async function checkIfDepartmentExists(departmentId, companyId) {
 // Update notification and its department association
 export async function updateNotification(notificationId, notificationData, companyId) {
     const { title, message, isGlobal, departmentId } = notificationData;
+    const normalizedTitle = title?.trim();
+    const normalizedMessage = message?.trim();
+    const normalizedDepartmentId = departmentId?.trim() || null;
 
     // Validate inputs
-    if (!title.trim()) {
+    if (!normalizedTitle) {
         throw new Error('Nadpis nesmie byť prázdny!');
     }
 
-    if (!isGlobal && !departmentId) {
+    if (!normalizedMessage) {
+        throw new Error('Správa nesmie byť prázdna!');
+    }
+
+    if (!isGlobal && !normalizedDepartmentId) {
         throw new Error('Keď je oznam len pre oddelenie, musíš zadať ID oddelenia!');
     }
 
     // check if department exists and belongs to company
     if (!isGlobal) {
-        const departmentExists = await checkIfDepartmentExists(departmentId, companyId);
+        const departmentExists = await checkIfDepartmentExists(normalizedDepartmentId, companyId);
         if (!departmentExists) {
             throw new Error('Toto oddelenie neexistuje vo Vašej firme!');
         }
@@ -76,8 +83,8 @@ export async function updateNotification(notificationId, notificationData, compa
     const { error: updateError } = await supabase
         .from('notification')
         .update({
-            title: title,
-            message: message,
+            title: normalizedTitle,
+            message: normalizedMessage,
             is_global: isGlobal,
             updated_at: new Date().toISOString()
         })
@@ -116,7 +123,7 @@ export async function updateNotification(notificationId, notificationData, compa
             // update existing department association
             const { error: updateDeptError } = await supabase
                 .from('notification_department')
-                .update({ department_id: departmentId })
+                .update({ department_id: normalizedDepartmentId })
                 .eq('notification_id', notificationId);
 
             if (updateDeptError) {
@@ -126,11 +133,85 @@ export async function updateNotification(notificationId, notificationData, compa
             // insert new department association
             const { error: insertError } = await supabase
                 .from('notification_department')
-                .insert([{ notification_id: notificationId, department_id: departmentId }]);
+                .insert([{ notification_id: notificationId, department_id: normalizedDepartmentId }]);
 
             if (insertError) {
                 throw new Error('Chyba pri novom priradení oddelenia: ' + insertError.message);
             }
         }
+    }
+}
+
+export async function createNotification(notificationData, companyId) {
+    const { title, message, isGlobal, departmentId } = notificationData;
+    const normalizedTitle = title?.trim();
+    const normalizedMessage = message?.trim();
+    const normalizedDepartmentId = departmentId?.trim() || null;
+    const now = new Date().toISOString();
+
+    if (!normalizedTitle) throw new Error('Nadpis nesmie byť prázdny!');
+    if (!normalizedMessage) throw new Error('Správa nesmie byť prázdna!');
+    if (!isGlobal && !normalizedDepartmentId) {
+        throw new Error('Keď je oznam len pre oddelenie, musíš zadať ID oddelenia!');
+    }
+
+    if (!isGlobal) {
+        const departmentExists = await checkIfDepartmentExists(normalizedDepartmentId, companyId);
+        if (!departmentExists) throw new Error('Toto oddelenie neexistuje vo Vašej firme!');
+    }
+
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+    if (authError) {
+        throw new Error('Chyba pri zisťovaní aktuálneho používateľa: ' + authError.message);
+    }
+
+    const { data: insertedNotification, error: insertError } = await supabase
+        .from('notification')
+        .insert([{
+            company_id: companyId,
+            title: normalizedTitle,
+            message: normalizedMessage,
+            is_global: isGlobal,
+            created_by: authData?.user?.id || null,
+            published_at: now,
+            updated_at: now
+        }])
+        .select('id')
+        .single();
+
+    if (insertError) throw new Error('Chyba pri vytváraní oznamu: ' + insertError.message);
+
+    if (!isGlobal) {
+        const { error: deptInsertError } = await supabase
+            .from('notification_department')
+            .insert([{
+                notification_id: insertedNotification.id,
+                department_id: normalizedDepartmentId
+            }]);
+
+        if (deptInsertError) throw new Error('Chyba pri priradení oddelenia: ' + deptInsertError.message);
+    }
+
+    return insertedNotification;
+}
+
+export async function deleteNotification(notificationId, companyId) {
+    const { error: deptDeleteError } = await supabase
+        .from('notification_department')
+        .delete()
+        .eq('notification_id', notificationId);
+
+    if (deptDeleteError) {
+        throw new Error('Chyba pri mazaní väzby na oddelenie: ' + deptDeleteError.message);
+    }
+
+    const { error: notificationDeleteError } = await supabase
+        .from('notification')
+        .delete()
+        .eq('id', notificationId)
+        .eq('company_id', companyId);
+
+    if (notificationDeleteError) {
+        throw new Error('Chyba pri mazaní oznamu: ' + notificationDeleteError.message);
     }
 }

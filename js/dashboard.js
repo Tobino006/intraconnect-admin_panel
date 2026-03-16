@@ -17,6 +17,11 @@ import {
     setCurrentCompanyIdDepartments 
 } from './ui/departmentUI.js';
 
+import {
+    CompanyAdminsButtonListener,
+    setCurrentCompanyIdAdmins
+} from './ui/adminUI.js';
+
 import { loadCompanyUsers } from './services/userService.js';
 
 
@@ -36,6 +41,7 @@ async function initDashboard() {
         setUserCompanyId(companyId);
         setCurrentCompanyIdNotifications(companyId);
         setCurrentCompanyIdDepartments(companyId);
+        setCurrentCompanyIdAdmins(companyId);
 
         // initialise with users loaded
         const users = await loadCompanyUsers(companyId);
@@ -51,6 +57,7 @@ async function initDashboard() {
 // button listeners
 function setupListeners() {
     CompanyUsersButtonListener();
+    CompanyAdminsButtonListener();
     CompanyNotificationsButtonListener();
     CompanyDepartmentsButtonListener();
     setupLogout();

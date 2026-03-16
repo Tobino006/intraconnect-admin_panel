@@ -182,7 +182,7 @@ ul, li {
     color: #666;
     font-weight: normal;
 }
-#userForm, #notificationForm {
+#userForm, #notificationForm, #adminForm {
     display: flex;
     flex-direction: column;
     gap: 1.5em;

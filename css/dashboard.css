@@ -291,3 +291,108 @@ ul, li {
 .btn-add-user:hover {
     background-color: #45a049;
 }
+
+.company-view {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2.5em;
+    overflow-y: auto;
+}
+
+.company-card {
+    width: min(100%, 640px);
+    background-color: #f9f9f9;
+    border: 2px solid #ddd;
+    border-radius: 1.5em;
+    padding: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+    align-items: center;
+    text-align: center;
+}
+
+.company-logo-button {
+    background: transparent;
+    color: black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75em;
+    padding: 0;
+}
+
+.company-logo-button:hover {
+    background: transparent;
+}
+
+.company-logo-preview {
+    width: min(100%, 320px);
+    max-height: 220px;
+    object-fit: contain;
+    border-radius: 1em;
+    border: 2px dashed #ccc;
+    padding: 1em;
+    background-color: white;
+}
+
+.company-field {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    text-align: left;
+}
+
+.company-field label,
+.company-info-label {
+    font-weight: bold;
+    font-size: 0.95em;
+}
+
+.company-field input {
+    padding: 0.7em;
+    border: 1px solid #ccc;
+    border-radius: 0.5em;
+    font-family: poppins, sans-serif;
+    font-size: 0.95em;
+}
+
+.company-info-row {
+    width: 100%;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 0.75em;
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35em;
+    text-align: left;
+    box-sizing: border-box;
+}
+
+.company-info-value {
+    color: #444;
+}
+
+.company-color-inputs {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
+.company-color-inputs input[type="color"] {
+    width: 3.5em;
+    height: 3.5em;
+    padding: 0.2em;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    background-color: white;
+    cursor: pointer;
+}
+
+.company-color-inputs input[type="text"] {
+    flex: 1;
+}

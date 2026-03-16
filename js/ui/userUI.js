@@ -20,9 +20,13 @@ export function CompanyUsersButtonListener() {
 // Display all users for company
 export async function displayCompanyUsers(users) {
     const formSection = document.querySelector('.form-section');
+
+    if (formSection.querySelector('.company-view')) {
+        formSection.innerHTML = '';
+    }
     
     // create sidebar if it doesn't exist
-    let sidebar = document.querySelector('.sidebar');
+    let sidebar = formSection.querySelector('.sidebar');
     if (!sidebar) {
         sidebar = document.createElement('div');
         sidebar.className = 'sidebar';
@@ -30,7 +34,7 @@ export async function displayCompanyUsers(users) {
     }
     
     // create form-container if it doesn't exist
-    let formContainer = document.querySelector('.form-container');
+    let formContainer = formSection.querySelector('.form-container');
     if (!formContainer) {
         formContainer = document.createElement('div');
         formContainer.className = 'form-container';

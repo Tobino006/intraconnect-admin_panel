@@ -1,6 +1,6 @@
 // User class for data
 export class User {
-    constructor(id, companyId, position, phone, name, departmentId, avatarUrl) {
+    constructor(id, companyId, position, phone, name, departmentId, avatarUrl, email) {
         this.id = id;
         this.companyId = companyId;
         this.position = position || '-';
@@ -8,5 +8,6 @@ export class User {
         this.name = name;
         this.departmentId = departmentId || '-';
         this.avatarUrl = avatarUrl || '-';
+        this.email = email || '-';
     }
 }

@@ -2,10 +2,21 @@ import { loadCompanyNotifications, updateNotification, createNotification, delet
 import { FormatDate } from '../utils/dateFormatter.js';
 
 let currentCompanyId = null;
+let currentAdminContext = {
+    role: 'Company',
+    departmentId: null
+};
 
 // Set current company ID
 export function setCurrentCompanyIdNotifications(companyId) {
     currentCompanyId = companyId;
+}
+
+export function setNotificationAdminContext(adminContext) {
+    currentAdminContext = {
+        role: adminContext?.role || 'Company',
+        departmentId: adminContext?.departmentId || null
+    };
 }
 
 // Event listener for notification's button
@@ -13,7 +24,7 @@ export function CompanyNotificationsButtonListener() {
     const notificationsBtn = document.getElementById('btn-notifications');
 
     notificationsBtn.addEventListener('click', async () => {
-        const notifications = await loadCompanyNotifications(currentCompanyId);
+        const notifications = await loadCompanyNotifications(currentCompanyId, currentAdminContext);
         displayCompanyNotifications(notifications);
     });
 }
@@ -85,6 +96,9 @@ export async function displayCompanyNotifications(notifications) {
 // Display form for adding a new notification
 function displayAddNotificationForm() {
     const formContainer = document.querySelector('.form-container');
+    const isDepartmentAdmin = currentAdminContext.role === 'Department';
+    const lockedDepartmentId = currentAdminContext.departmentId || '';
+
     formContainer.innerHTML = `
     <h2>Pridať nový oznam</h2>
     <form id="notificationForm">
@@ -98,6 +112,12 @@ function displayAddNotificationForm() {
             <textarea id="newMessage" rows="10" placeholder="Text správy" required></textarea>
         </div>
 
+        ${isDepartmentAdmin ? `
+        <div class="form-group">
+            <label>Oddelenie ID:</label>
+            <input type="text" id="newDepartment" value="${lockedDepartmentId}" readonly>
+        </div>
+        ` : `
         <div class="form-group">
             <label>Typ oznamu:</label>
             <div style="margin-top: 0.5em;">
@@ -114,22 +134,25 @@ function displayAddNotificationForm() {
             <label>Oddelenie ID:</label>
             <input type="text" id="newDepartment" placeholder="ID oddelenia">
         </div>
+        `}
 
         <button type="button" id="saveNewNotificationBtn" class="save-btn">Vytvoriť oznam</button>
     </form>
     `;
 
-    // event listener for radio button changes
-    document.querySelectorAll('input[name="newIsGlobal"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            const departmentGroup = document.getElementById('newDepartmentGroup');
-            if (e.target.value === 'false') {
-                departmentGroup.style.display = 'block';
-            } else {
-                departmentGroup.style.display = 'none';
-            }
+    if (!isDepartmentAdmin) {
+        // event listener for radio button changes
+        document.querySelectorAll('input[name="newIsGlobal"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const departmentGroup = document.getElementById('newDepartmentGroup');
+                if (e.target.value === 'false') {
+                    departmentGroup.style.display = 'block';
+                } else {
+                    departmentGroup.style.display = 'none';
+                }
+            });
         });
-    });
+    }
 
     // event listener for the create button
     document.getElementById('saveNewNotificationBtn').addEventListener('click', () => {
@@ -140,6 +163,9 @@ function displayAddNotificationForm() {
 // Display form for editing notification
 function displayNotificationForm(notification) {
     const formContainer = document.querySelector('.form-container');
+    const isDepartmentAdmin = currentAdminContext.role === 'Department';
+    const lockedDepartmentId = currentAdminContext.departmentId || notification.departmentId || '';
+
     formContainer.innerHTML = `
     <h2>Upraviť oznam</h2>
     <form id="notificationForm">
@@ -163,6 +189,12 @@ function displayNotificationForm(notification) {
             <input type="text" id="formUpdated" readonly>
         </div>
 
+        ${isDepartmentAdmin ? `
+        <div class="form-group">
+            <label>Oddelenie ID:</label>
+            <input type="text" id="formDepartment" value="${lockedDepartmentId}" readonly>
+        </div>
+        ` : `
         <div class="form-group">
             <label>Typ oznamu:</label>
             <div style="margin-top: 0.5em;">
@@ -179,6 +211,7 @@ function displayNotificationForm(notification) {
             <label>Oddelenie ID:</label>
             <input type="text" id="formDepartment" placeholder="ID oddelenia">
         </div>
+        `}
         
         <button type="button" id="saveBtn" class="save-btn">Uložiť zmeny</button>
     </form>
@@ -190,34 +223,41 @@ function displayNotificationForm(notification) {
     document.getElementById('formPublished').value = FormatDate(notification.publishedAt);
     document.getElementById('formUpdated').value = FormatDate(notification.updatedAt);
 
-    // if global is chosen false, show input field for department id
-    if (notification.isGlobal) {
-        document.getElementById('formIsGlobalYes').checked = true;
-        document.getElementById('departmentGroup').style.display = 'none';
-    } else {
-        document.getElementById('formIsGlobalNo').checked = true;
-        document.getElementById('departmentGroup').style.display = 'block';
-        document.getElementById('formDepartment').value = notification.departmentId || '';
-    }
+    if (!isDepartmentAdmin) {
+        // if global is chosen false, show input field for department id
+        if (notification.isGlobal) {
+            document.getElementById('formIsGlobalYes').checked = true;
+            document.getElementById('departmentGroup').style.display = 'none';
+        } else {
+            document.getElementById('formIsGlobalNo').checked = true;
+            document.getElementById('departmentGroup').style.display = 'block';
+            document.getElementById('formDepartment').value = notification.departmentId || '';
+        }
 
-    // event listener for radio button changes
-    document.querySelectorAll('input[name="isGlobal"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            const departmentGroup = document.getElementById('departmentGroup');
-            if (e.target.value === 'false') {
-                departmentGroup.style.display = 'block';
-            } else {
-                departmentGroup.style.display = 'none';
-            }
+        // event listener for radio button changes
+        document.querySelectorAll('input[name="isGlobal"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const departmentGroup = document.getElementById('departmentGroup');
+                if (e.target.value === 'false') {
+                    departmentGroup.style.display = 'block';
+                } else {
+                    departmentGroup.style.display = 'none';
+                }
+            });
         });
-    });
+    }
 
     // event listener for the save button
     document.getElementById('saveBtn').addEventListener('click', async () => {
+        const saveBtn = document.getElementById('saveBtn');
+        saveBtn.disabled = true;
+
         try {
             const title = document.getElementById('formTitle').value;
             const message = document.getElementById('formMessage').value;
-            const isGlobal = document.querySelector('input[name="isGlobal"]:checked').value === "true";
+            const isGlobal = isDepartmentAdmin
+                ? false
+                : document.querySelector('input[name="isGlobal"]:checked').value === "true";
             const departmentId = document.getElementById('formDepartment').value;
 
             await updateNotification (
@@ -228,18 +268,20 @@ function displayNotificationForm(notification) {
                     isGlobal,
                     departmentId
                 },
-                currentCompanyId
+                currentCompanyId,
+                currentAdminContext
             );
 
             alert("Oznam bol úspešne upravený.");
 
             // reload notifications
-            const notifications = await loadCompanyNotifications(currentCompanyId);
+            const notifications = await loadCompanyNotifications(currentCompanyId, currentAdminContext);
             displayCompanyNotifications(notifications);
 
         } catch (error) {
             console.error("Error updating notification:", error);
             alert(error.message);
+            saveBtn.disabled = false;
         }
     });
 }
@@ -247,9 +289,12 @@ function displayNotificationForm(notification) {
 // handle creating new notification
 async function handleCreateNotification() {
     try {
+        const isDepartmentAdmin = currentAdminContext.role === 'Department';
         const title = document.getElementById('newTitle').value;
         const message = document.getElementById('newMessage').value;
-        const isGlobal = document.querySelector('input[name="newIsGlobal"]:checked').value === "true";
+        const isGlobal = isDepartmentAdmin
+            ? false
+            : document.querySelector('input[name="newIsGlobal"]:checked').value === "true";
         const departmentId = document.getElementById('newDepartment').value;
 
         // validation
@@ -270,13 +315,14 @@ async function handleCreateNotification() {
                 isGlobal,
                 departmentId
             },
-            currentCompanyId
+            currentCompanyId,
+            currentAdminContext
         );
 
         alert('Oznam bol úspešne vytvorený.');
 
         // reload notifications
-        const notifications = await loadCompanyNotifications(currentCompanyId);
+        const notifications = await loadCompanyNotifications(currentCompanyId, currentAdminContext);
         displayCompanyNotifications(notifications);
     } catch (error) {
         console.error('Error creating notification:', error);
@@ -294,11 +340,11 @@ async function handleDeleteNotification(notificationId, notificationTitle) {
     }
 
     try {
-        await deleteNotification(notificationId, currentCompanyId);
+        await deleteNotification(notificationId, currentCompanyId, currentAdminContext);
         alert(`Oznam "${notificationTitle}" bol úspešne odstránený.`);
 
         // reload notifications
-        const notifications = await loadCompanyNotifications(currentCompanyId);
+        const notifications = await loadCompanyNotifications(currentCompanyId, currentAdminContext);
         displayCompanyNotifications(notifications);
     } catch (error) {
         console.error('Error deleting notification:', error);

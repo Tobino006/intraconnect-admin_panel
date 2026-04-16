@@ -167,6 +167,14 @@ ul, li {
     font-weight: normal;
 }
 
+.user-item .user-email {
+    display: block;
+    font-size: 0.85em;
+    color: #666;
+    margin-bottom: 0.8em;
+    font-weight: normal;
+}
+
 .user-item .user-info,
 .notification-item .notification-info,
 .department-item .department-info {

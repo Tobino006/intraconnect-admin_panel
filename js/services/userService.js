@@ -22,7 +22,8 @@ export async function loadCompanyUsers(companyId) {
             user.phone, 
             user.name, 
             user.department_id, 
-            user.avatar_url
+            user.avatar_url,
+            user.email
         )
     );
 }
@@ -30,10 +31,11 @@ export async function loadCompanyUsers(companyId) {
 // Create a new user
 export async function createNewUser(userData, companyId) {
     const { name, email, password, position, departmentId } = userData;
+    const normalizedEmail = email?.trim();
 
     // create auth account in Supabase
     const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: email,
+        email: normalizedEmail,
         password: password
     });
 
@@ -61,7 +63,7 @@ export async function createNewUser(userData, companyId) {
         throw new Error('Chyba pri vložení do tabuľky: ' + insertError.message);
     }
 
-    return { userId: newUserId, email, password };
+    return { userId: newUserId, email: normalizedEmail, password };
 }
 
 // Update user details

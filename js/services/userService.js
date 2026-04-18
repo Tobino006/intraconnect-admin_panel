@@ -36,7 +36,10 @@ export async function createNewUser(userData, companyId) {
     // create auth account in Supabase
     const { data: authData, error: authError } = await supabase.auth.signUp({
         email: normalizedEmail,
-        password: password
+        password: password,
+        options: {
+            emailRedirectTo: 'https://tobino006.github.io/intraconnect-admin_panel'
+        }
     });
 
     if (authError) {

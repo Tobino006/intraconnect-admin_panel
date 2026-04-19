@@ -64,7 +64,7 @@ async function initDashboard() {
             await displayCompanyUsers(users);
         }
 
-        setupListeners();
+        setupListeners(adminContext.role);
 
     } catch (err) {
         console.error("Dashboard init error:", err);
@@ -76,18 +76,22 @@ function applyDepartmentAdminLayout() {
         const button = document.getElementById(buttonId);
 
         if (button) {
-            button.style.display = 'none';
+            button.remove();
         }
     });
 }
 
 // button listeners
-function setupListeners() {
-    CompanyUsersButtonListener();
-    CompanyAdminsButtonListener();
+function setupListeners(role) {
     CompanyNotificationsButtonListener();
-    CompanyDepartmentsButtonListener();
-    CompanyButtonListener();
+
+    if (role === 'Company') {
+        CompanyUsersButtonListener();
+        CompanyAdminsButtonListener();
+        CompanyDepartmentsButtonListener();
+        CompanyButtonListener();
+    }
+
     setupLogout();
 }
 

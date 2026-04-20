@@ -166,6 +166,8 @@ async function handleCreateNewUser() {
 // Display form for editing user
 function displayUserForm(user) {
     const formContainer = document.querySelector('.form-container');
+    const departmentValue = user.departmentId !== '-' ? user.departmentId : '';
+
     formContainer.innerHTML = `
     <h2>Upraviť používateľa</h2>
     <form id="userForm">
@@ -181,7 +183,7 @@ function displayUserForm(user) {
         
         <div class="form-group">
             <label>Oddelenie ID:</label>
-             <input type="text" id="formDepartment" value="${user.departmentId}" placeholder="Oddelenie">
+             <input type="text" id="formDepartment" value="${departmentValue}" placeholder="Oddelenie">
         </div>
         
         <button type="button" id="saveBtn" class="save-btn">Uložiť zmeny</button>

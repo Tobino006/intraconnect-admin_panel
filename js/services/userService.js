@@ -32,6 +32,7 @@ export async function loadCompanyUsers(companyId) {
 export async function createNewUser(userData, companyId) {
     const { name, email, password, position, departmentId } = userData;
     const normalizedEmail = email?.trim();
+    const normalizedDepartmentId = departmentId?.trim() || null;
 
     // create auth account in Supabase
     const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -57,7 +58,7 @@ export async function createNewUser(userData, companyId) {
             name: name,
             position: position || null,
             phone: null,
-            department_id: departmentId || null,
+            department_id: normalizedDepartmentId,
             avatar_url: null
         }]);
 
@@ -72,13 +73,14 @@ export async function createNewUser(userData, companyId) {
 // Update user details
 export async function updateUser(userId, userData) {
     const { name, position, departmentId } = userData;
+    const normalizedDepartmentId = departmentId?.trim() || null;
 
     const { error } = await supabase
         .from('user')
         .update({
             name: name,
             position: position || null,
-            department_id: departmentId
+            department_id: normalizedDepartmentId
         })
         .eq('id', userId);
     
